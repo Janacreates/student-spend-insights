@@ -1,0 +1,525 @@
+{
+  "config": {
+    "students": 150,
+    "months": 24,
+    "seed": 42,
+    "test_months": 6
+  },
+  "data": {
+    "students": 150,
+    "months": 24,
+    "raw_rows": 150577,
+    "clean_rows": 150276
+  },
+  "data_quality": {
+    "rows_raw": 150577,
+    "exact_duplicate_rows_removed": 301,
+    "duplicate_txn_ids_after_dedupe": 0,
+    "date_formats": {
+      "iso (YYYY-MM-DD)": 105452,
+      "us slash (MM/DD/YYYY)": 22420,
+      "DD-Mon-YYYY": 14993,
+      "Mon D, YYYY": 7411
+    },
+    "unparseable_dates": 0,
+    "amount_styles": {
+      "with_dollar_sign": 37649,
+      "with_thousands_separator": 434,
+      "accounting_parentheses": 8577
+    },
+    "unparseable_amounts": 0,
+    "missing_description": 464,
+    "missing_txn_type_inferred_from_sign": 1515,
+    "txn_type_sign_conflicts": 0,
+    "rows_dropped_unparseable": 0,
+    "rows_clean": 150276,
+    "students": 150,
+    "date_min": "2023-09-01",
+    "date_max": "2025-08-31",
+    "debit_rows": 143544,
+    "credit_rows": 6732,
+    "unique_normalized_descriptions": 403
+  },
+  "categorization": {
+    "labeled_rows": 14835,
+    "labeled_fraction": 0.09871835822087359,
+    "random_split": {
+      "n_test": 134977,
+      "rules_coverage": 0.7438674737177445,
+      "rules_accuracy_on_covered": 0.9989442756834819,
+      "model_accuracy_all": 1.0,
+      "model_macro_f1": 1.0,
+      "model_threshold": 0.9,
+      "model_coverage": 0.9998221919289954,
+      "model_accuracy_on_covered": 1.0,
+      "hybrid_coverage": 0.9998221919289954,
+      "hybrid_accuracy_on_covered": 0.9992145413588435,
+      "hybrid_correct_share_of_all": 0.9990368729487246,
+      "coverage_curve": [
+        {
+          "threshold": 0.3,
+          "coverage": 1.0,
+          "accuracy": 1.0
+        },
+        {
+          "threshold": 0.4,
+          "coverage": 1.0,
+          "accuracy": 1.0
+        },
+        {
+          "threshold": 0.5,
+          "coverage": 1.0,
+          "accuracy": 1.0
+        },
+        {
+          "threshold": 0.6,
+          "coverage": 1.0,
+          "accuracy": 1.0
+        },
+        {
+          "threshold": 0.7,
+          "coverage": 1.0,
+          "accuracy": 1.0
+        },
+        {
+          "threshold": 0.8,
+          "coverage": 0.9999925913303748,
+          "accuracy": 1.0
+        },
+        {
+          "threshold": 0.9,
+          "coverage": 0.9998221919289954,
+          "accuracy": 1.0
+        }
+      ]
+    },
+    "unseen_merchants": {
+      "n_test": 38897,
+      "rules_coverage": 0.6851171041468493,
+      "rules_accuracy_on_covered": 0.9954970167736125,
+      "model_accuracy_all": 0.28457207496722114,
+      "model_macro_f1": 0.45001781665685775,
+      "model_threshold": 0.9,
+      "model_coverage": 0.21983700542458287,
+      "model_accuracy_on_covered": 0.7438896035551398,
+      "hybrid_coverage": 0.7338098053834486,
+      "hybrid_accuracy_on_covered": 0.9923273657289002,
+      "hybrid_correct_share_of_all": 0.7281795511221946,
+      "n_unseen_merchants": 31,
+      "coverage_curve": [
+        {
+          "threshold": 0.3,
+          "coverage": 0.9469624906805152,
+          "accuracy": 0.30051039800184615
+        },
+        {
+          "threshold": 0.4,
+          "coverage": 0.8459264210607502,
+          "accuracy": 0.3358862144420131
+        },
+        {
+          "threshold": 0.5,
+          "coverage": 0.7728359513587166,
+          "accuracy": 0.332124679817704
+        },
+        {
+          "threshold": 0.6,
+          "coverage": 0.5894284906290974,
+          "accuracy": 0.4061150608452916
+        },
+        {
+          "threshold": 0.7,
+          "coverage": 0.4970563282515361,
+          "accuracy": 0.47874211234095376
+        },
+        {
+          "threshold": 0.8,
+          "coverage": 0.40442707663830113,
+          "accuracy": 0.5859131650880427
+        },
+        {
+          "threshold": 0.9,
+          "coverage": 0.21983700542458287,
+          "accuracy": 0.7438896035551398
+        }
+      ]
+    },
+    "ambiguous_merchants": {
+      "UBER *EATS": {
+        "n": 1932,
+        "rules_accuracy": 0.9451345755693582,
+        "model_accuracy": 1.0
+      },
+      "UBER *TRIP": {
+        "n": 2391,
+        "rules_accuracy": 1.0,
+        "model_accuracy": 1.0
+      },
+      "AMAZON.CA": {
+        "n": 930,
+        "rules_accuracy": 1.0,
+        "model_accuracy": 1.0
+      },
+      "AMAZON PRIME*MEMBERSHIP": {
+        "n": 572,
+        "rules_accuracy": 1.0,
+        "model_accuracy": 1.0
+      },
+      "APPLE STORE": {
+        "n": 1025,
+        "rules_accuracy": 0.0,
+        "model_accuracy": 1.0
+      },
+      "APPLE.COM/BILL": {
+        "n": 541,
+        "rules_accuracy": 0.9722735674676525,
+        "model_accuracy": 1.0
+      }
+    },
+    "abstain_rate_overall": 0.00015970614070110996
+  },
+  "eda": {
+    "pct_of_spend_by_category": {
+      "rent": 27.1,
+      "tuition": 23.22,
+      "groceries": 16.14,
+      "dining": 10.53,
+      "shopping": 8.72,
+      "transport": 5.25,
+      "entertainment": 4.16,
+      "education": 1.87,
+      "subscriptions": 1.55,
+      "health": 1.13,
+      "uncategorized": 0.33
+    },
+    "fixed_pct_of_all_spend": 50.32,
+    "variable_share_pct": {
+      "groceries": 36.026090858317524,
+      "dining": 23.49425190496626,
+      "shopping": 19.464133096465332,
+      "transport": 11.727382353755894,
+      "entertainment": 9.288141786495014
+    },
+    "top2_variable_categories": [
+      "groceries",
+      "dining"
+    ],
+    "top2_variable_share_pct": 59.52034276328378,
+    "student_monthly_variable_spend": {
+      "p10": 690.7997916666667,
+      "median": 921.62625,
+      "p90": 1182.9077916666668
+    },
+    "top20pct_students_share_of_variable_spend_pct": 26.684175267589392,
+    "dining_exam_effect": {
+      "n_students": 150,
+      "mean_exam": 277.6114,
+      "mean_other_term": 213.20154444444447,
+      "mean_diff": 64.40985555555557,
+      "ci95_low": 54.686570277777776,
+      "ci95_high": 74.18212541666664,
+      "relative_lift_pct": 30.210782817447804,
+      "wilcoxon_p": 6.094899934223196e-22,
+      "test": "paired Wilcoxon signed-rank on per-student means (Apr/Dec vs Sep-Nov, Jan-Mar)"
+    },
+    "top_merchants": [
+      {
+        "merchant": "NO FRILLS",
+        "category": "groceries",
+        "n_txns": 1946,
+        "total_spend": 96055.75,
+        "pct_of_variable_spend": 2.58
+      },
+      {
+        "merchant": "T&T SUPERMARKET",
+        "category": "groceries",
+        "n_txns": 1888,
+        "total_spend": 93771.72,
+        "pct_of_variable_spend": 2.52
+      },
+      {
+        "merchant": "COSTCO WHOLESALE",
+        "category": "groceries",
+        "n_txns": 1894,
+        "total_spend": 93090.26,
+        "pct_of_variable_spend": 2.5
+      },
+      {
+        "merchant": "LUCKY 8 MART",
+        "category": "groceries",
+        "n_txns": 1893,
+        "total_spend": 89064.88,
+        "pct_of_variable_spend": 2.39
+      },
+      {
+        "merchant": "REAL CDN SUPERSTORE",
+        "category": "groceries",
+        "n_txns": 1818,
+        "total_spend": 88248.98,
+        "pct_of_variable_spend": 2.37
+      }
+    ],
+    "largest_month_over_month_increase": {
+      "category": "shopping",
+      "month": "2023-11-01",
+      "pct": 42.8
+    }
+  },
+  "forecast": {
+    "n_predictions": 4500,
+    "test_months": [
+      "2025-03-01",
+      "2025-04-01",
+      "2025-05-01",
+      "2025-06-01",
+      "2025-07-01",
+      "2025-08-01"
+    ],
+    "mae": {
+      "last_month": 106.96174,
+      "rolling_3m_mean": 89.92472444444445,
+      "seasonal_naive": 106.59407777777777,
+      "gradient_boosting": 76.60456225543122
+    },
+    "wape": {
+      "last_month": 0.5806442542016587,
+      "rolling_3m_mean": 0.4881584252400354,
+      "seasonal_naive": 0.5786483914116521,
+      "gradient_boosting": 0.4158496198664063
+    },
+    "mae_improvement_vs_best_baseline_pct": 14.812569369887184,
+    "mae_by_category": {
+      "dining": {
+        "last_month": 96.40694444444445,
+        "rolling_3m_mean": 81.72679259259259,
+        "seasonal_naive": 89.33998888888888,
+        "gradient_boosting": 67.64770521818868
+      },
+      "entertainment": {
+        "last_month": 71.85634444444445,
+        "rolling_3m_mean": 60.62738518518518,
+        "seasonal_naive": 71.92262222222222,
+        "gradient_boosting": 53.14815666111398
+      },
+      "groceries": {
+        "last_month": 180.31101111111113,
+        "rolling_3m_mean": 146.33225185185185,
+        "seasonal_naive": 183.16100000000003,
+        "gradient_boosting": 126.50307461348149
+      },
+      "shopping": {
+        "last_month": 133.1285888888889,
+        "rolling_3m_mean": 116.2632148148148,
+        "seasonal_naive": 136.86208888888888,
+        "gradient_boosting": 97.16859929056886
+      },
+      "transport": {
+        "last_month": 53.10581111111111,
+        "rolling_3m_mean": 44.67397777777778,
+        "seasonal_naive": 51.68468888888889,
+        "gradient_boosting": 38.55527549380306
+      }
+    },
+    "interval_nominal": 0.8,
+    "interval_coverage_raw": 0.7733333333333333,
+    "interval_coverage_conformal": 0.802,
+    "interval_mean_width_raw": 228.8456067801953,
+    "interval_mean_width_conformal": 237.21534816295187
+  },
+  "anomalies": {
+    "n_transactions_scored": 140557,
+    "n_injected": 925,
+    "injected_by_type": {
+      "spike": 529,
+      "duplicate": 264,
+      "unknown_merchant": 132
+    },
+    "rules": {
+      "flagged": 2743,
+      "precision": 0.3138899015676267,
+      "recall": 0.9308108108108109,
+      "f1": 0.4694656488549619,
+      "recall_by_type": {
+        "spike": 0.8903591682419659,
+        "duplicate": 0.9924242424242424,
+        "unknown_merchant": 0.9696969696969697
+      }
+    },
+    "isolation_forest": {
+      "flagged": 1406,
+      "precision": 0.32503556187766713,
+      "recall": 0.49405405405405406,
+      "f1": 0.39210639210639214,
+      "recall_by_type": {
+        "spike": 0.6086956521739131,
+        "duplicate": 0.03409090909090909,
+        "unknown_merchant": 0.9545454545454546
+      }
+    },
+    "union": {
+      "flagged": 3167,
+      "precision": 0.2737606567729713,
+      "recall": 0.9372972972972973,
+      "f1": 0.42375366568914963,
+      "recall_by_type": {
+        "spike": 0.8941398865784499,
+        "duplicate": 0.9924242424242424,
+        "unknown_merchant": 1.0
+      }
+    },
+    "isolation_forest_top_k": {
+      "flagged": 925,
+      "precision": 0.43135135135135133,
+      "recall": 0.43135135135135133,
+      "f1": 0.4313513513513513,
+      "recall_by_type": {
+        "spike": 0.5198487712665406,
+        "duplicate": 0.01893939393939394,
+        "unknown_merchant": 0.9015151515151515
+      }
+    },
+    "isolation_forest_average_precision": 0.38117240467408503,
+    "base_rate": 0.006580960037564832,
+    "rules_by_rule": {
+      "robust_z_spike": {
+        "flagged": 1852,
+        "precision": 0.29211663066954646,
+        "recall_of_target_type": 0.8865784499054821
+      },
+      "duplicate_pair": {
+        "flagged": 266,
+        "precision": 0.9849624060150376,
+        "recall_of_target_type": 0.9924242424242424
+      },
+      "rare_merchant": {
+        "flagged": 718,
+        "precision": 0.181058495821727,
+        "recall_of_target_type": 0.9090909090909091
+      }
+    },
+    "rules_precision_lift_vs_base_rate": 47.69667339961179
+  },
+  "nudges": {
+    "rows": 4500,
+    "overspend_definition": "actual > 1.15 x forecast-median budget",
+    "base_rate_overspend_eval": 0.36577777777777776,
+    "tau_tuned_on_first_half": 1.1,
+    "tuning_f1": 0.6849775784753362,
+    "eval_at_tau": {
+      "tau": 1.1,
+      "flagged": 901,
+      "precision": 0.6781354051054383,
+      "recall": 0.7424058323207776,
+      "f1": 0.7088167053364269
+    },
+    "eval_grid": [
+      {
+        "tau": 1.0,
+        "flagged": 1000,
+        "precision": 0.638,
+        "recall": 0.7752126366950183,
+        "f1": 0.6999451453647835
+      },
+      {
+        "tau": 1.1,
+        "flagged": 901,
+        "precision": 0.6781354051054383,
+        "recall": 0.7424058323207776,
+        "f1": 0.7088167053364269
+      },
+      {
+        "tau": 1.2,
+        "flagged": 777,
+        "precision": 0.7284427284427284,
+        "recall": 0.6877278250303767,
+        "f1": 0.7074999999999999
+      },
+      {
+        "tau": 1.3,
+        "flagged": 703,
+        "precision": 0.7596017069701281,
+        "recall": 0.6488456865127582,
+        "f1": 0.6998689384010485
+      },
+      {
+        "tau": 1.4,
+        "flagged": 609,
+        "precision": 0.7865353037766831,
+        "recall": 0.5820170109356014,
+        "f1": 0.6689944134078213
+      },
+      {
+        "tau": 1.5,
+        "flagged": 534,
+        "precision": 0.8333333333333334,
+        "recall": 0.5407047387606319,
+        "f1": 0.655858511422255
+      },
+      {
+        "tau": 1.6,
+        "flagged": 478,
+        "precision": 0.8640167364016736,
+        "recall": 0.5018226002430134,
+        "f1": 0.6348962336664105
+      },
+      {
+        "tau": 1.8,
+        "flagged": 363,
+        "precision": 0.9173553719008265,
+        "recall": 0.4046172539489672,
+        "f1": 0.5615514333895446
+      },
+      {
+        "tau": 2.0,
+        "flagged": 269,
+        "precision": 0.9516728624535316,
+        "recall": 0.3110571081409477,
+        "f1": 0.4688644688644688
+      }
+    ],
+    "simulated_experiment": {
+      "IMPORTANT": "effect size is an assumption, not a finding",
+      "assumed_relative_effect_on_remaining_spend": 0.1,
+      "n_flagged_cases": 1833,
+      "mean_outcome_control": 253.8346019629226,
+      "mean_outcome_treated": 244.84178027721697,
+      "diff_in_means": 8.992821685705621,
+      "ci95": [
+        -8.41009512439945,
+        27.078794727152488
+      ],
+      "p_value_raw": 0.33026981803008526,
+      "p_value_cuped": 0.22279472345220927,
+      "cuped_variance_reduction": 0.5755625548367072,
+      "n_per_arm_needed_80pct_power_raw": 6509,
+      "n_per_arm_needed_80pct_power_cuped": 2763,
+      "power_by_sample_size": {
+        "n_per_arm": [
+          25,
+          50,
+          100,
+          200,
+          400,
+          800
+        ],
+        "raw": [
+          0.03666666666666667,
+          0.056666666666666664,
+          0.056666666666666664,
+          0.05333333333333334,
+          0.11,
+          0.2
+        ],
+        "cuped": [
+          0.03666666666666667,
+          0.08,
+          0.07,
+          0.12666666666666668,
+          0.16666666666666666,
+          0.31
+        ]
+      }
+    }
+  },
+  "recurring_subscriptions_found": 384
+}
