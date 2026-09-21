@@ -64,19 +64,22 @@ def walk_forward(feat: pd.DataFrame, n_months: int, n_test: int, seed: int = 42)
         train = feat[(feat.month_idx >= MIN_HISTORY) & (feat.month_idx <= t - 2)]
         cal = feat[feat.month_idx == t - 1]
         test = feat[feat.month_idx == t].copy()
-        m50 = _fit(train[FEATURES], train.spend, seed, loss="absolute_error")
-        m10 = _fit(train[FEATURES], train.spend, seed, loss="quantile", quantile=0.1)
-        m90 = _fit(train[FEATURES], train.spend, seed, loss="quantile", quantile=0.9)
+        # a feature that is entirely missing in this training window (e.g. lag12 with < 12 months of
+        # history) carries no information, and newer scikit-learn versions reject such columns
+        feats = [c for c in FEATURES if train[c].notna().any()]
+        m50 = _fit(train[feats], train.spend, seed, loss="absolute_error")
+        m10 = _fit(train[feats], train.spend, seed, loss="quantile", quantile=0.1)
+        m90 = _fit(train[feats], train.spend, seed, loss="quantile", quantile=0.9)
 
         # CQR: widen (or shrink) the raw interval by the (1-alpha) quantile of calibration scores
         y_cal = cal.spend.to_numpy()
-        scores = np.maximum(m10.predict(cal[FEATURES]) - y_cal, y_cal - m90.predict(cal[FEATURES]))
+        scores = np.maximum(m10.predict(cal[feats]) - y_cal, y_cal - m90.predict(cal[feats]))
         n = len(scores)
         qhat = np.quantile(scores, min(1.0, np.ceil((n + 1) * 0.8) / n), method="higher")
 
-        lo_raw = np.maximum(m10.predict(test[FEATURES]), 0)
-        hi_raw = np.maximum(m90.predict(test[FEATURES]), lo_raw)
-        test["p50"] = np.maximum(m50.predict(test[FEATURES]), 0)
+        lo_raw = np.maximum(m10.predict(test[feats]), 0)
+        hi_raw = np.maximum(m90.predict(test[feats]), lo_raw)
+        test["p50"] = np.maximum(m50.predict(test[feats]), 0)
         test["p10_raw"], test["p90_raw"] = lo_raw, hi_raw
         test["p10"], test["p90"] = np.maximum(lo_raw - qhat, 0), hi_raw + qhat
         test["qhat"] = qhat

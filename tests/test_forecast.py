@@ -52,3 +52,13 @@ def test_intervals_are_ordered_and_nonnegative():
     res = walk_forward(build_features(panel), n_months, n_test=2, seed=1)
     assert (res.p10 <= res.p90).all()
     assert (res.p10 >= 0).all() and (res.p50 >= 0).all()
+
+
+def test_walk_forward_works_when_lag12_is_not_yet_available():
+    # 14 months with 2 test months: the first training window has < 12 months of history, so the
+    # lag12 column is entirely missing. Newer scikit-learn versions raise on all-NaN features.
+    panel = build_panel(_monthly(n_months=14), ["dining", "groceries"])
+    n_months = int(panel.month_idx.max()) + 1
+    res = walk_forward(build_features(panel), n_months, n_test=2, seed=1)
+    assert len(res) > 0
+    assert res.p50.notna().all()

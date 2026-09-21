@@ -2,7 +2,7 @@
 
 An end-to-end analytics pipeline that turns messy student bank transactions into answers to three questions: **where does the money go, what will next month look like, and when should a student be nudged about their budget?**
 
-It covers SQL, data cleaning and profiling, categorisation, statistical testing, forecasting with calibrated uncertainty, anomaly detection, and the design of an experiment to measure whether budget nudges work. It ships with a Streamlit demo, a PowerPoint findings deck, and 20 tests.
+It covers SQL, data cleaning and profiling, categorisation, statistical testing, forecasting with calibrated uncertainty, anomaly detection, and the design of an experiment to measure whether budget nudges work. It ships with a Streamlit demo, a PowerPoint findings deck, and 21 tests.
 
 > **The data is synthetic.** No public dataset of real student transactions exists, so [`generate.py`](spendinsights/generate.py) simulates 150 students over 24 months (150,577 raw rows). Every parameter is my assumption. Numbers below describe how well the *pipeline* works on data whose ground truth I control, not how real students behave. Where a result is an artifact of the simulator, I say so.
 
@@ -82,13 +82,15 @@ With 1,833 flagged cases the difference is $9.0 (95% CI -$8.4 to $27.1, p = 0.33
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
-make install
+make install       # or: pip install -r requirements-lock.txt for exact reproduction
 make run          # full pipeline, about 20-60 seconds; writes data/, reports/
-make test         # 20 tests
+make test         # 21 tests
 make dashboard    # Streamlit demo (run `make run` first)
 ```
 
-`make quick` runs a small version (40 students, 16 months). Results are deterministic: two full runs produce byte-identical `reports/metrics.json`.
+`make quick` runs a small version (40 students, 16 months).
+
+**Reproducibility.** Runs are deterministic for a given set of library versions. `pip install -r requirements-lock.txt` installs the exact versions behind every number in this README, and a fresh run then reproduces `reports/metrics.json` byte for byte. `requirements.txt` installs the newest releases instead: all tests pass there too, but library changes shift a couple of figures in the last digit (for example conformal coverage 80.3% instead of 80.2%).
 
 Outputs: [`reports/metrics.json`](reports/metrics.json) (every number above), [`reports/findings_deck.pptx`](reports/findings_deck.pptx) (six slides), [`reports/figures/`](reports/figures), and `data/spend.db` (SQLite, not committed).
 
@@ -112,7 +114,10 @@ reports/         metrics.json, data quality report, figures, findings deck
 
 ## Tested with
 
-Python 3.9, pandas 2.3, numpy 2.0, scikit-learn 1.6, scipy 1.13, matplotlib 3.9, streamlit 1.50, python-pptx 1.0.
+- **Locked** (`requirements-lock.txt`): Python 3.9 and 3.11 with pandas 2.3.3, numpy 2.0.2, scikit-learn 1.6.1, scipy 1.13.1, matplotlib 3.9.4, streamlit 1.50.0, python-pptx 1.0.2.
+- **Latest** (`requirements.txt`, checked on Python 3.11): pandas 3.0, numpy 2.4, scikit-learn 1.9, scipy 1.17, matplotlib 3.11.
+
+Continuous integration runs the test suite against both sets.
 
 ## License
 

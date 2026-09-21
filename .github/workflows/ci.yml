@@ -7,11 +7,18 @@ on:
 jobs:
   pytest:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # "locked" = the exact versions behind the README numbers; "latest" = newest releases
+        requirements: [requirements-lock.txt, requirements.txt]
+    name: pytest (${{ matrix.requirements }})
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
-      - run: pip install -r requirements.txt
+          cache-dependency-path: ${{ matrix.requirements }}
+      - run: pip install -r ${{ matrix.requirements }}
       - run: pytest -q
