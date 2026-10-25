@@ -2,7 +2,7 @@
 
 An end-to-end analytics pipeline that turns messy student bank transactions into answers to three questions: **where does the money go, what will next month look like, and when should a student be nudged about their budget?**
 
-It covers SQL, data cleaning and profiling, categorisation, statistical testing, forecasting with calibrated uncertainty, anomaly detection, and the design of an experiment to measure whether budget nudges work. It ships with a Streamlit demo, a PowerPoint findings deck, and 21 tests.
+It covers SQL, data cleaning and profiling, categorisation, statistical testing, forecasting with calibrated uncertainty, anomaly detection, and the design of an experiment to measure whether budget nudges work. It ships with a Streamlit demo, a PowerPoint findings deck, a star schema for Power BI, and 28 tests.
 
 > **The data is synthetic.** No public dataset of real student transactions exists, so [`generate.py`](spendinsights/generate.py) simulates 150 students over 24 months (150,577 raw rows). Every parameter is my assumption. Numbers below describe how well the *pipeline* works on data whose ground truth I control, not how real students behave. Where a result is an artifact of the simulator, I say so.
 
@@ -20,7 +20,7 @@ It covers SQL, data cleaning and profiling, categorisation, statistical testing,
 ## What is in each stage
 
 ```
-generate -> clean -> categorise -> SQLite -> EDA -> forecast -> anomalies -> nudges -> deck / dashboard
+generate -> clean -> categorise -> SQLite -> EDA -> forecast -> anomalies -> nudges -> star schema -> deck / dashboard / Power BI
 ```
 
 ### 1. Messy input, real cleaning ([`clean.py`](spendinsights/clean.py))
@@ -78,13 +78,42 @@ Budget = forecast median. At day 15, project month-end spend from pace and nudge
 
 With 1,833 flagged cases the difference is $9.0 (95% CI -$8.4 to $27.1, p = 0.33). The practical lesson is that month-level dollar outcomes are noisy, so a real test would need a longer horizon, a better metric, or thousands of users.
 
+### 7. Star schema for BI ([`warehouse.py`](spendinsights/warehouse.py), [`sql/bi/`](sql/bi))
+The analysis tables are shaped for Python. BI tools like Power BI work best with a star schema instead: narrow fact tables for each business event, joined on integer keys to small descriptive dimensions. The pipeline builds one in the same SQLite database.
+
+```mermaid
+erDiagram
+    dim_date ||--o{ fact_transactions : date_key
+    dim_student ||--o{ fact_transactions : student_key
+    dim_merchant ||--o{ fact_transactions : merchant_key
+    dim_category ||--o{ fact_transactions : category_key
+    dim_date ||--o{ fact_forecast : month_key
+    dim_student ||--o{ fact_forecast : student_key
+    dim_category ||--o{ fact_forecast : category_key
+    dim_date ||--o{ fact_flags : date_key
+    dim_student ||--o{ fact_flags : student_key
+    dim_merchant ||--o{ fact_flags : merchant_key
+    dim_category ||--o{ fact_flags : category_key
+```
+
+| Table | Grain | Rows (seed 42) |
+|---|---|---:|
+| `fact_transactions` | one cleaned transaction | 150,276 |
+| `fact_forecast` | one student, category and test month, with the forecast, its 80% range, and the day-15 budget alert | 4,500 |
+| `fact_flags` | one anomaly flag, with its reason | 3,167 |
+| `dim_date` | one calendar day (month, academic year, exam-month flag) | 731 |
+| `dim_student` / `dim_merchant` / `dim_category` | housing and city / standardised merchant name / fixed, controllable or other | 150 / 403 / 12 |
+
+Six queries in [`sql/bi/`](sql/bi) answer questions through joins: spend by housing type and city, fixed versus controllable spend by month, a merchant leaderboard, forecast error and alert quality by category, the exam-month effect by housing, and flags by reason. Tests check that every foreign key resolves and that the star schema reproduces the pipeline's own numbers exactly: the same transaction totals, MAE ($76.6), interval coverage (80.2%), and held-out alert precision and recall (67.8%, 74.2%). `make bi` exports every table as CSV for Power BI, and [`powerbi/`](powerbi) describes the report built on top.
+
 ## Run it
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 make install       # or: pip install -r requirements-lock.txt for exact reproduction
 make run          # full pipeline, about 20-60 seconds; writes data/, reports/
-make test         # 21 tests
+make test         # 28 tests
+make bi           # rebuild the star schema and export data/powerbi/*.csv for Power BI
 make dashboard    # Streamlit demo (run `make run` first)
 ```
 
@@ -97,10 +126,12 @@ Outputs: [`reports/metrics.json`](reports/metrics.json) (every number above), [`
 ## Repository layout
 
 ```
-spendinsights/   generate, clean, categorize, db, eda, forecast, anomalies, nudges, deck, pipeline
+spendinsights/   generate, clean, categorize, db, eda, forecast, anomalies, nudges, warehouse, deck, pipeline
 sql/             analysis queries (window functions, recurring-charge detection)
+sql/bi/          star-schema queries with joins, for BI questions
 dashboard/       Streamlit app: set budgets, see mid-month projection, flags, subscriptions
-tests/           cleaning, generator, categoriser, leakage tests for forecasting, end-to-end smoke test
+powerbi/         Power BI report guide: model, DAX measures, pages
+tests/           cleaning, generator, categoriser, leakage tests for forecasting, star-schema integrity, end-to-end smoke test
 reports/         metrics.json, data quality report, figures, findings deck
 ```
 
