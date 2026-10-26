@@ -1,4 +1,4 @@
-"""End-to-end run: generate -> clean -> categorise -> SQL/EDA -> forecast -> anomalies -> nudges -> deck.
+"""End-to-end run: generate -> clean -> categorise -> SQL/EDA -> forecast -> anomalies -> nudges -> star schema -> deck.
 
     python -m spendinsights.pipeline
     python -m spendinsights.pipeline --students 40 --months 16 --test-months 3   # quick run
@@ -22,6 +22,7 @@ from .eda import run_eda
 from .forecast import run_forecast
 from .generate import write_dataset
 from .nudges import run_nudges
+from .warehouse import build_warehouse
 
 
 def _step(name: str, verbose: bool):
@@ -63,6 +64,9 @@ def run(paths: Paths = Paths(), n_students: int = 150, n_months: int = 24, seed:
     db.save_table(paths, "flags", flags)
     recurring = db.query(paths, "recurring_charges")
     db.save_table(paths, "recurring_charges", recurring)
+
+    _step("build star schema for BI", verbose)
+    build_warehouse(paths, tau=nudge_metrics["tau_tuned_on_first_half"])
 
     metrics = {
         "config": {"students": n_students, "months": n_months, "seed": seed, "test_months": n_test_months},

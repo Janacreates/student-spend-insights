@@ -1,6 +1,6 @@
 PYTHON ?= python3
 
-.PHONY: install run quick test dashboard
+.PHONY: install run quick test dashboard bi
 
 install:
 	$(PYTHON) -m pip install -r requirements.txt
@@ -18,3 +18,7 @@ test:
 
 dashboard:
 	$(PYTHON) -m streamlit run dashboard/app.py
+
+# rebuild the star schema from data/spend.db and export CSVs for Power BI (run `make run` first)
+bi:
+	$(PYTHON) -m spendinsights.warehouse --export
