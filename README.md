@@ -2,7 +2,7 @@
 
 An end-to-end analytics pipeline that turns messy student bank transactions into answers to three questions: **where does the money go, what will next month look like, and when should a student be nudged about their budget?**
 
-It covers SQL, data cleaning and profiling, categorisation, statistical testing, forecasting with calibrated uncertainty, anomaly detection, and the design of an experiment to measure whether budget nudges work. It ships with a Streamlit demo, a PowerPoint findings deck, a star schema for Power BI, and 28 tests.
+It covers SQL, data cleaning and profiling, categorisation, statistical testing, forecasting with calibrated uncertainty, anomaly detection, and the design of an experiment to measure whether budget nudges work. It ships with a Streamlit demo, a PowerPoint findings deck, a star schema with a three-page Power BI report, and 28 tests.
 
 > **The data is synthetic.** No public dataset of real student transactions exists, so [`generate.py`](spendinsights/generate.py) simulates 150 students over 24 months (150,577 raw rows). Every parameter is my assumption. Numbers below describe how well the *pipeline* works on data whose ground truth I control, not how real students behave. Where a result is an artifact of the simulator, I say so.
 
@@ -104,7 +104,22 @@ erDiagram
 | `dim_date` | one calendar day (month, academic year, exam-month flag) | 731 |
 | `dim_student` / `dim_merchant` / `dim_category` | housing and city / standardised merchant name / fixed, controllable or other | 150 / 403 / 12 |
 
-Six queries in [`sql/bi/`](sql/bi) answer questions through joins: spend by housing type and city, fixed versus controllable spend by month, a merchant leaderboard, forecast error and alert quality by category, the exam-month effect by housing, and flags by reason. Tests check that every foreign key resolves and that the star schema reproduces the pipeline's own numbers exactly: the same transaction totals, MAE ($76.6), interval coverage (80.2%), and held-out alert precision and recall (67.8%, 74.2%). `make bi` exports every table as CSV for Power BI, and [`powerbi/`](powerbi) describes the report built on top.
+Six queries in [`sql/bi/`](sql/bi) answer questions through joins: spend by housing type and city, fixed versus controllable spend by month, a merchant leaderboard, forecast error and alert quality by category, the exam-month effect by housing, and flags by reason. Tests check that every foreign key resolves and that the star schema reproduces the pipeline's own numbers exactly: the same transaction totals, MAE ($76.6), interval coverage (80.2%), and held-out alert precision and recall (67.8%, 74.2%). `make bi` exports every table as CSV for Power BI.
+
+### 8. Power BI report ([`powerbi/`](powerbi))
+[`student_spend_insights.pbix`](powerbi/student_spend_insights.pbix) loads the seven CSVs into a model with the relationships in the diagram above, 18 DAX measures and three pages. Before building any page I checked every measure against the pipeline: total spend $7,495,878.47, MAE 76.60, interval coverage 80.2%, and alert precision and recall of 66.7% and 73.0% across all six test months (the 67.8% and 74.2% above score only the held-out second half). [`powerbi/README.md`](powerbi/README.md) lists every relationship and measure, and the [PDF export](powerbi/student_spend_insights.pdf) shows the report without Power BI.
+
+**Overview.** Spend by month and category, with slicers for academic year, city and housing. The four spikes in fixed spend are tuition, due each September and January.
+
+![Power BI overview page](reports/figures/powerbi_overview.png)
+
+**Segments and merchants.** Students who live with family spend about $1,560 a month, against $2,320 in residence and $2,190 in shared housing. Dining per student rises 28% to 39% in exam months (December and April) for every housing type. Small cells are noisy: St Albert has only 8 students.
+
+![Power BI segments and merchants page](reports/figures/powerbi_segments.png)
+
+**Forecasts and alerts.** Groceries is the hardest category to forecast (MAE $126.50) and transport the easiest ($38.56). Summed over all students, the forecast sits below actual spend in every test month, by 2% to 13%. That is expected from a median forecast on right-skewed spending rather than a bias in each forecast: actual spend lands above the forecast in 48% of rows. A budget total built from these forecasts would need a mean forecast instead.
+
+![Power BI forecasts and alerts page](reports/figures/powerbi_forecasts.png)
 
 ## Run it
 
@@ -130,7 +145,7 @@ spendinsights/   generate, clean, categorize, db, eda, forecast, anomalies, nudg
 sql/             analysis queries (window functions, recurring-charge detection)
 sql/bi/          star-schema queries with joins, for BI questions
 dashboard/       Streamlit app: set budgets, see mid-month projection, flags, subscriptions
-powerbi/         Power BI report guide: model, DAX measures, pages
+powerbi/         Power BI report (.pbix and PDF export) and its build guide: model, DAX measures, pages
 tests/           cleaning, generator, categoriser, leakage tests for forecasting, star-schema integrity, end-to-end smoke test
 reports/         metrics.json, data quality report, figures, findings deck
 ```

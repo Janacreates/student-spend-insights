@@ -2,6 +2,8 @@
 
 A three-page Power BI report on the star schema from [`warehouse.py`](../spendinsights/warehouse.py). All data is synthetic (see the main README).
 
+The finished report is [`student_spend_insights.pbix`](student_spend_insights.pbix), with a [PDF export](student_spend_insights.pdf) for viewing without Power BI. This guide rebuilds it from scratch.
+
 ## 1. Get the data
 
 On the machine that runs the pipeline:
@@ -11,7 +13,7 @@ make run   # if data/spend.db does not exist yet
 make bi    # writes data/powerbi/*.csv (7 files, about 11 MB)
 ```
 
-Copy the `data/powerbi/` folder to the Windows machine with Power BI Desktop. In Power BI, use **Get data > Text/CSV** for each of the 7 files, or **Get data > Folder** and combine them in Power Query. In Power Query, check these types:
+Copy the `data/powerbi/` folder to the Windows machine with Power BI Desktop. In Power BI, use **Get data > Text/CSV** for each of the 7 files, with type detection based on the entire dataset. (**Get data > Folder** would combine them into one table, which is wrong here because each file has different columns.) Check these types:
 
 | Column | Type |
 |---|---|
@@ -111,12 +113,15 @@ The main README's 67.8% and 74.2% score the alert on the held-out second half of
 ## 4. Pages
 
 1. **Overview.** Cards: Total Spend, Avg Monthly Spend per Student, Controllable Share, Overspend Rate. A line chart of Total Spend by `dim_date[month_start]`, with `dim_category[category_group]` as the legend. A bar chart of Total Spend by `dim_category[category]`. Slicers: `dim_date[academic_year]`, `dim_student[housing]`, `dim_student[city]`.
-2. **Segments and merchants.** A matrix of Avg Monthly Spend per Student by `housing` (rows) and `city` (columns), with conditional formatting. A bar chart of the top 10 `dim_merchant[merchant_name]` by Controllable Spend (Top N filter). A clustered column chart of dining spend by `housing`, split by `dim_date[is_exam_month]`.
+2. **Segments and merchants.** A matrix of Avg Monthly Spend per Student by `housing` (rows) and `city` (columns), with conditional formatting. A bar chart of the top 10 `dim_merchant[merchant_name]` by Controllable Spend (Top N filter). A clustered column chart of Avg Monthly Spend per Student by `housing`, split by `dim_date[is_exam_month]` and filtered to dining. It uses the per-month average rather than Total Spend because there are only 4 exam months against 20 others.
 3. **Forecasts and alerts.** Cards: Forecast MAE, Interval Coverage, Alert Precision, Alert Recall. A line chart of Actual and Forecast (test months) by month. A table by `dim_category[category]` with MAE, Interval Coverage, Overspend Rate, Alert Precision and Alert Recall. A bar chart of Flagged Transactions by `fact_flags[reason]`.
 
-Add a text box on each page: "Synthetic data: 150 simulated students over 24 months."
+Give each page a title text box, followed by the line "Synthetic data: 150 simulated students over 24 months."
+
+Older versions of Power BI Desktop label the chart wells **Axis** and **Values** instead of **X-axis** and **Y-axis**.
 
 ## 5. Save
 
 - Save the report as `powerbi/student_spend_insights.pbix`.
-- Export each page as an image to `reports/figures/powerbi_overview.png`, `powerbi_segments.png` and `powerbi_forecasts.png`, so the README can show them.
+- Use **File > Export > Export to PDF** for `powerbi/student_spend_insights.pdf`. **Print > Microsoft Print to PDF** adds margins and squeezes the pages.
+- The README images `reports/figures/powerbi_overview.png`, `powerbi_segments.png` and `powerbi_forecasts.png` are the PDF's three pages, rendered at 1800 pixels wide.
