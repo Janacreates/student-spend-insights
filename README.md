@@ -177,6 +177,10 @@ reports/         metrics.json, data quality report, figures, findings deck
 
 Continuous integration runs the test suite against both sets.
 
+## How I built this
+
+I used Claude Code as an AI pair programmer, mainly to write implementation code. I chose what to build and which questions to ask, approved each design before it was written, built the Power BI report myself in Power BI Desktop, and checked the reported numbers against the pipeline's output.
+
 ## License
 
 MIT
