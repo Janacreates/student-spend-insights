@@ -1,5 +1,6 @@
 # Exact versions that produced the numbers in README.md and reports/metrics.json.
 # Use `pip install -r requirements-lock.txt` to reproduce them exactly.
+lifelines==0.30.0
 matplotlib==3.9.4
 numpy==2.0.2
 pandas==2.3.3

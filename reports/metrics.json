@@ -521,5 +521,249 @@
       }
     }
   },
+  "survival": {
+    "units": 4500,
+    "event_definition": "first day cumulative spend > forecast-median budget; censored at month end",
+    "kaplan_meier": {
+      "all": {
+        "n": 4500,
+        "crossed_by_month_end": 0.4826666666666667,
+        "crossed_by_day_10": 0.050666666666667304,
+        "crossed_by_day_15": 0.11688888888888882,
+        "crossed_by_day_20": 0.21022222222222198
+      },
+      "by_category": {
+        "dining": {
+          "n": 900,
+          "crossed_by_month_end": 0.4866666666666667,
+          "crossed_by_day_10": 0.01333333333333342,
+          "crossed_by_day_15": 0.05333333333333379,
+          "crossed_by_day_20": 0.14111111111111097
+        },
+        "entertainment": {
+          "n": 900,
+          "crossed_by_month_end": 0.4777777777777778,
+          "crossed_by_day_10": 0.0922222222222222,
+          "crossed_by_day_15": 0.16888888888888876,
+          "crossed_by_day_20": 0.25555555555555576
+        },
+        "groceries": {
+          "n": 900,
+          "crossed_by_month_end": 0.5244444444444445,
+          "crossed_by_day_10": 0.03222222222222226,
+          "crossed_by_day_15": 0.1044444444444449,
+          "crossed_by_day_20": 0.21444444444444433
+        },
+        "shopping": {
+          "n": 900,
+          "crossed_by_month_end": 0.4311111111111111,
+          "crossed_by_day_10": 0.0933333333333336,
+          "crossed_by_day_15": 0.17444444444444462,
+          "crossed_by_day_20": 0.25444444444444436
+        },
+        "transport": {
+          "n": 900,
+          "crossed_by_month_end": 0.49333333333333335,
+          "crossed_by_day_10": 0.0222222222222227,
+          "crossed_by_day_15": 0.0833333333333337,
+          "crossed_by_day_20": 0.18555555555555592
+        }
+      },
+      "by_housing": {
+        "family": {
+          "n": 990,
+          "crossed_by_month_end": 0.45656565656565656,
+          "crossed_by_day_10": 0.048484848484848575,
+          "crossed_by_day_15": 0.1181818181818185,
+          "crossed_by_day_20": 0.19090909090909058
+        },
+        "residence": {
+          "n": 1110,
+          "crossed_by_month_end": 0.48558558558558557,
+          "crossed_by_day_10": 0.06036036036036019,
+          "crossed_by_day_15": 0.11621621621621592,
+          "crossed_by_day_20": 0.21441441441441444
+        },
+        "shared": {
+          "n": 2400,
+          "crossed_by_month_end": 0.4920833333333333,
+          "crossed_by_day_10": 0.04708333333333381,
+          "crossed_by_day_15": 0.1166666666666667,
+          "crossed_by_day_20": 0.2162500000000004
+        }
+      }
+    },
+    "material_overspends": {
+      "n": 1675,
+      "median_crossing_day": 20.0,
+      "already_over_budget_by_day_10": 0.13373134328358208,
+      "already_over_budget_by_day_15": 0.3008955223880597
+    },
+    "cox": {
+      "hazard_ratios": {
+        "category_entertainment": {
+          "hr": 1.0116801796367425,
+          "ci95": [
+            0.8507937831423619,
+            1.2029904380466911
+          ],
+          "p": 0.8954504338679778
+        },
+        "category_groceries": {
+          "hr": 1.1998816837168487,
+          "ci95": [
+            1.0459630442417112,
+            1.3764502128877092
+          ],
+          "p": 0.009280975622720131
+        },
+        "category_shopping": {
+          "hr": 0.9318550626966029,
+          "ci95": [
+            0.8091169272073903,
+            1.0732118296799837
+          ],
+          "p": 0.32736180727771724
+        },
+        "category_transport": {
+          "hr": 1.0076488448198684,
+          "ci95": [
+            0.8640412047500021,
+            1.1751247381316658
+          ],
+          "p": 0.9226219336793297
+        },
+        "housing_residence": {
+          "hr": 1.084884984355594,
+          "ci95": [
+            0.9571821832606255,
+            1.229625300035245
+          ],
+          "p": 0.20227877570078162
+        },
+        "housing_shared": {
+          "hr": 1.1153854564802947,
+          "ci95": [
+            1.0007513326222117,
+            1.2431506968548833
+          ],
+          "p": 0.048434358762831774
+        },
+        "log_budget": {
+          "hr": 0.9257263116862534,
+          "ci95": [
+            0.8275407948499247,
+            1.0355612792522773
+          ],
+          "p": 0.17729896837929654
+        }
+      },
+      "concordance_train": 0.5244505441883174,
+      "concordance_heldout": 0.4759360647713946,
+      "proportional_hazards_test_p": {
+        "category_entertainment": 1.084084864548966e-12,
+        "category_groceries": 0.0019675817229387045,
+        "category_shopping": 4.6536004589338754e-23,
+        "category_transport": 0.012430789212600712,
+        "housing_residence": 0.8867546877698416,
+        "housing_shared": 0.9846147500876191,
+        "log_budget": 0.8620473997456101
+      },
+      "stratified_by_category": {
+        "hazard_ratios": {
+          "housing_residence": {
+            "hr": 1.0784349340942578,
+            "ci95": [
+              0.95146955984353,
+              1.2223427381808687
+            ],
+            "p": 0.2373860554426795
+          },
+          "housing_shared": {
+            "hr": 1.114772215475874,
+            "ci95": [
+              1.0001897772624628,
+              1.24248129769765
+            ],
+            "p": 0.04960051677853315
+          },
+          "log_budget": {
+            "hr": 0.924790274518091,
+            "ci95": [
+              0.8266440158691941,
+              1.034589297720842
+            ],
+            "p": 0.17196459373434925
+          }
+        },
+        "concordance": 0.5167975514450053
+      }
+    },
+    "alert_timing_heldout": [
+      {
+        "tau": 1.0,
+        "flagged": 812,
+        "precision": 0.5406403940886699,
+        "recall": 0.5334143377885784,
+        "f1": 0.5370030581039755,
+        "day": 5,
+        "warned_before_crossing": 0.5006075334143378
+      },
+      {
+        "tau": 1.0,
+        "flagged": 901,
+        "precision": 0.5682574916759157,
+        "recall": 0.6221142162818954,
+        "f1": 0.5939675174013921,
+        "day": 7,
+        "warned_before_crossing": 0.5577156743620899
+      },
+      {
+        "tau": 1.0,
+        "flagged": 954,
+        "precision": 0.5953878406708596,
+        "recall": 0.6901579586877278,
+        "f1": 0.6392796848621273,
+        "day": 10,
+        "warned_before_crossing": 0.5577156743620899
+      },
+      {
+        "tau": 1.1,
+        "flagged": 883,
+        "precision": 0.6409966024915063,
+        "recall": 0.6877278250303767,
+        "f1": 0.6635404454865181,
+        "day": 12,
+        "warned_before_crossing": 0.5006075334143378
+      },
+      {
+        "tau": 1.1,
+        "flagged": 901,
+        "precision": 0.6781354051054383,
+        "recall": 0.7424058323207776,
+        "f1": 0.7088167053364269,
+        "day": 15,
+        "warned_before_crossing": 0.44835965978128794
+      },
+      {
+        "tau": 1.1,
+        "flagged": 902,
+        "precision": 0.7095343680709535,
+        "recall": 0.7776427703523694,
+        "f1": 0.7420289855072463,
+        "day": 18,
+        "warned_before_crossing": 0.35479951397326853
+      },
+      {
+        "tau": 1.2,
+        "flagged": 786,
+        "precision": 0.7913486005089059,
+        "recall": 0.755771567436209,
+        "f1": 0.7731510254816656,
+        "day": 20,
+        "warned_before_crossing": 0.22721749696233293
+      }
+    ]
+  },
   "recurring_subscriptions_found": 384
 }

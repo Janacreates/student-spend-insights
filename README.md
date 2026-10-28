@@ -2,7 +2,7 @@
 
 An end-to-end analytics pipeline that turns messy student bank transactions into answers to three questions: **where does the money go, what will next month look like, and when should a student be nudged about their budget?**
 
-It covers SQL, data cleaning and profiling, categorisation, statistical testing, forecasting with calibrated uncertainty, anomaly detection, and the design of an experiment to measure whether budget nudges work. It ships with a Streamlit demo, a PowerPoint findings deck, a star schema with a three-page Power BI report, and 28 tests.
+It covers SQL, data cleaning and profiling, categorisation, statistical testing, forecasting with calibrated uncertainty, anomaly detection, time-to-event (survival) analysis, and the design of an experiment to measure whether budget nudges work. It ships with a Streamlit demo, a PowerPoint findings deck, a star schema with a three-page Power BI report, and 32 tests.
 
 > **The data is synthetic.** No public dataset of real student transactions exists, so [`generate.py`](spendinsights/generate.py) simulates 150 students over 24 months (150,577 raw rows). Every parameter is my assumption. Numbers below describe how well the *pipeline* works on data whose ground truth I control, not how real students behave. Where a result is an artifact of the simulator, I say so.
 
@@ -15,12 +15,13 @@ It covers SQL, data cleaning and profiling, categorisation, statistical testing,
 | Forecasting | Walk-forward MAE **$76.6 vs $89.9** for the best baseline (14.8% lower). Nominal 80% intervals covered **77.3%** raw and **80.2%** after conformal calibration. |
 | Anomaly detection | Rules find **93%** of injected anomalies, but only **31%** of what they flag is real (48x the 0.66% base rate). Isolation Forest finds 49% and misses almost all duplicates. |
 | Nudge trigger | Day-15 pace rule: **68% precision, 74% recall** on held-out months vs a 37% base rate. |
+| Time-to-event | Only **11.7%** of budgets are crossed by day 15 (Kaplan-Meier, censored months included). A day-10 alert warns **56%** of overspenders while still under budget, against **45%** at day 15. |
 | Simulated A/B test | An assumed 10% effect is **not detectable** with 1,833 cases (p = 0.33). It needs about 6,500 per arm, or about 2,800 with CUPED variance reduction. |
 
 ## What is in each stage
 
 ```
-generate -> clean -> categorise -> SQLite -> EDA -> forecast -> anomalies -> nudges -> star schema -> deck / dashboard / Power BI
+generate -> clean -> categorise -> SQLite -> EDA -> forecast -> anomalies -> nudges -> survival -> star schema -> deck / dashboard / Power BI
 ```
 
 ### 1. Messy input, real cleaning ([`clean.py`](spendinsights/clean.py))
@@ -78,7 +79,17 @@ Budget = forecast median. At day 15, project month-end spend from pace and nudge
 
 With 1,833 flagged cases the difference is $9.0 (95% CI -$8.4 to $27.1, p = 0.33). The practical lesson is that month-level dollar outcomes are noisy, so a real test would need a longer horizon, a better metric, or thousands of users.
 
-### 7. Star schema for BI ([`warehouse.py`](spendinsights/warehouse.py), [`sql/bi/`](sql/bi))
+### 7. When do budgets get crossed? Time-to-event analysis ([`survival.py`](spendinsights/survival.py))
+The day-15 alert raises a timing question: a warning only helps if it arrives while the student is still under budget. For each student, category and test month (4,500 in all), the event is the first day cumulative spend passes the budget. 51.7% of months never cross, so they are right-censored at month end, and Kaplan-Meier curves ([`lifelines`](https://lifelines.readthedocs.io)) count them correctly instead of averaging only the months that did cross.
+
+- **Most crossings come late.** Only 11.7% of months are over budget by day 15, against 48.3% by month end. Among material overspends the median crossing day is 20, and 30% are already over budget by day 15.
+- **Shopping and entertainment cross early but less often.** About 17% of them are over budget by day 15, against 5% for dining, yet shopping crosses least by month end (43%). Because the curves cross, a single hazard ratio per category would mislead: the proportional-hazards test rejects it for every category (p &le; 0.012), so the Cox model is stratified by category.
+- **Who the student is barely matters.** Housing and budget size have hazard ratios close to 1 (shared housing 1.12, 95% CI 1.00 to 1.24), and the model ranks held-out months no better than chance (concordance 0.48). Timing comes from how fast a student spends within the month, which is what the pace-based alert measures. The simulator sets each budget from the student's own forecast, so a weak student effect is expected here.
+- **The alert day is a trade-off.** Re-tuning the alert for each day on the first half of the test months and scoring it on the second half, a day-10 alert reaches 55.8% of material overspends while the student is still under budget, against 44.8% at day 15, at the cost of precision (59.5% against 67.8%). Later alerts are more accurate but arrive after the budget is gone, so a day-10 warning with a day-15 reminder is the natural next test.
+
+![Budget crossing](reports/figures/fig_budget_crossing.png)
+
+### 8. Star schema for BI ([`warehouse.py`](spendinsights/warehouse.py), [`sql/bi/`](sql/bi))
 The analysis tables are shaped for Python. BI tools like Power BI work best with a star schema instead: narrow fact tables for each business event, joined on integer keys to small descriptive dimensions. The pipeline builds one in the same SQLite database.
 
 ```mermaid
@@ -106,7 +117,7 @@ erDiagram
 
 Six queries in [`sql/bi/`](sql/bi) answer questions through joins: spend by housing type and city, fixed versus controllable spend by month, a merchant leaderboard, forecast error and alert quality by category, the exam-month effect by housing, and flags by reason. Tests check that every foreign key resolves and that the star schema reproduces the pipeline's own numbers exactly: the same transaction totals, MAE ($76.6), interval coverage (80.2%), and held-out alert precision and recall (67.8%, 74.2%). `make bi` exports every table as CSV for Power BI.
 
-### 8. Power BI report ([`powerbi/`](powerbi))
+### 9. Power BI report ([`powerbi/`](powerbi))
 [`student_spend_insights.pbix`](powerbi/student_spend_insights.pbix) loads the seven CSVs into a model with the relationships in the diagram above, 18 DAX measures and three pages. Before building any page I checked every measure against the pipeline: total spend $7,495,878.47, MAE 76.60, interval coverage 80.2%, and alert precision and recall of 66.7% and 73.0% across all six test months (the 67.8% and 74.2% above score only the held-out second half). [`powerbi/README.md`](powerbi/README.md) lists every relationship and measure, and the [PDF export](powerbi/student_spend_insights.pdf) shows the report without Power BI.
 
 **Overview.** Spend by month and category, with slicers for academic year, city and housing. The four spikes in fixed spend are tuition, due each September and January.
@@ -127,7 +138,7 @@ Six queries in [`sql/bi/`](sql/bi) answer questions through joins: spend by hous
 python3 -m venv .venv && source .venv/bin/activate
 make install       # or: pip install -r requirements-lock.txt for exact reproduction
 make run          # full pipeline, about 20-60 seconds; writes data/, reports/
-make test         # 28 tests
+make test         # 32 tests
 make bi           # rebuild the star schema and export data/powerbi/*.csv for Power BI
 make dashboard    # Streamlit demo (run `make run` first)
 ```
@@ -141,12 +152,12 @@ Outputs: [`reports/metrics.json`](reports/metrics.json) (every number above), [`
 ## Repository layout
 
 ```
-spendinsights/   generate, clean, categorize, db, eda, forecast, anomalies, nudges, warehouse, deck, pipeline
+spendinsights/   generate, clean, categorize, db, eda, forecast, anomalies, nudges, survival, warehouse, deck, pipeline
 sql/             analysis queries (window functions, recurring-charge detection)
 sql/bi/          star-schema queries with joins, for BI questions
 dashboard/       Streamlit app: set budgets, see mid-month projection, flags, subscriptions
 powerbi/         Power BI report (.pbix and PDF export) and its build guide: model, DAX measures, pages
-tests/           cleaning, generator, categoriser, leakage tests for forecasting, star-schema integrity, end-to-end smoke test
+tests/           cleaning, generator, categoriser, leakage tests for forecasting, budget-crossing and censoring, star-schema integrity, end-to-end smoke test
 reports/         metrics.json, data quality report, figures, findings deck
 ```
 
@@ -157,6 +168,7 @@ reports/         metrics.json, data quality report, figures, findings deck
 - **Anomaly thresholds are tuned to the simulator** (for example, the rare-merchant cutoff), and precision is low by design of the rules. Real deployment needs a feedback loop from reviewers.
 - **Forecast horizon and data are limited:** 24 months, six test months, one-step-ahead only.
 - **The A/B result is a demonstration of method**, not a finding about nudges.
+- **The time-to-event analysis covers six test months** and uses forecast medians as budgets. Its category timing comes from the simulator's purchase patterns.
 
 ## Tested with
 

@@ -1,4 +1,4 @@
-"""End-to-end run: generate -> clean -> categorise -> SQL/EDA -> forecast -> anomalies -> nudges -> star schema -> deck.
+"""End-to-end run: generate -> clean -> categorise -> SQL/EDA -> forecast -> anomalies -> nudges -> survival -> star schema -> deck.
 
     python -m spendinsights.pipeline
     python -m spendinsights.pipeline --students 40 --months 16 --test-months 3   # quick run
@@ -22,6 +22,7 @@ from .eda import run_eda
 from .forecast import run_forecast
 from .generate import write_dataset
 from .nudges import run_nudges
+from .survival import run_survival
 from .warehouse import build_warehouse
 
 
@@ -60,6 +61,9 @@ def run(paths: Paths = Paths(), n_students: int = 150, n_months: int = 24, seed:
     _step("budget nudges + simulated A/B test", verbose)
     nudge_metrics = run_nudges(paths, txns, forecasts, seed=seed)
 
+    _step("survival analysis: when budgets get crossed", verbose)
+    survival_metrics = run_survival(paths, txns, forecasts, students)
+
     db.save_table(paths, "forecasts", forecasts)
     db.save_table(paths, "flags", flags)
     recurring = db.query(paths, "recurring_charges")
@@ -78,6 +82,7 @@ def run(paths: Paths = Paths(), n_students: int = 150, n_months: int = 24, seed:
         "forecast": fc_metrics,
         "anomalies": an_metrics,
         "nudges": nudge_metrics,
+        "survival": survival_metrics,
         "recurring_subscriptions_found": int(len(recurring)),
     }
     paths.reports.mkdir(parents=True, exist_ok=True)
